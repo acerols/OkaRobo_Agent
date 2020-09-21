@@ -12,6 +12,13 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
+  <build_depend>rclcpp</build_depend>
+  <test_depend>rclcpp</test_depend>
+  <exec_depend>rclcpp</exec_depend>
+  <depend>mpu9250</depend>
+  <depend>agent_msgs</depend>
+  <depend>okarobo_msgs</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

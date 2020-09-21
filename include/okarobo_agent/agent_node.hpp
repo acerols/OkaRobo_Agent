@@ -17,7 +17,7 @@ private:
     void _robosense_callback(const okarobo_msgs::msg::Sensor::SharedPtr RoboSense);
     void _mpu9250_callback(const mpu9250::msg::Sensor::SharedPtr IMU);
     void _agent_callback();
-    rclcpp::TimerBase::SharedPtr anget_timer_;
+    rclcpp::TimerBase::SharedPtr agent_timer_;
 
     float pi;
 
@@ -40,7 +40,14 @@ public:
     );
 };
 
+template<typename TYPE, std::size_t SIZE>
+std::size_t array_len(const TYPE (&array)[SIZE])
+{
+    return SIZE;
+}
+
 
 }
+
 
 #endif

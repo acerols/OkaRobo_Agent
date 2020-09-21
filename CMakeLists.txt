@@ -29,7 +29,7 @@ add_executable(robo_agent
 
 ament_target_dependencies(robo_agent
   rclcpp
-  mpu9520
+  mpu9250
   agent_msgs
   okarobo_msgs
 )
@@ -40,11 +40,9 @@ target_include_directories(robo_agent
   $<INSTALL_INTERFACE:include>
 )
 
-install(TARGET
+install(TARGETS
   robo_agent
   DESTINATION lib/$(PROJECT_NAME)
 )
-
-
 
 ament_package()

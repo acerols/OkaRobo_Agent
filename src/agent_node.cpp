@@ -9,7 +9,7 @@
 
 namespace OkaRobo{
 RoboAgent::RoboAgent(
-    const std::string& name_space="",
+    const std::string& name_space,
     const rclcpp::NodeOptions& options
 ): Node("robo_agent", name_space, options)
 {
@@ -36,13 +36,26 @@ RoboAgent::RoboAgent(
 
     agent_timer_ = this->create_wall_timer(
         50ms,
-        std::bind(&RoboAgent::_agent_callbakc, this)
+        std::bind(&RoboAgent::_agent_callback, this)
     );
 
 }
 
 void RoboAgent::_robosense_callback(const okarobo_msgs::msg::Sensor::SharedPtr RoboSense)
 {
+    for(auto i = 0; i < array_len(uss); i++){
+        this->pre_uss[i] = this->uss[i];
+    }
+    for(auto i = 0; i < array_len(bs); i++){
+        this->pre_bs[i] = this->bs[i];
+    }
+
+    this->uss[0] = RoboSense->ussl;
+    this->uss[1] = RoboSense->ussr;
+    this->bs[0] = RoboSense->bsfront;
+    this->bs[1] = RoboSense->bsleft;
+    this->bs[2] = RoboSense->bsright;
+    this->bs[3] = RoboSense->bsrear;
 
 }
 
@@ -58,9 +71,9 @@ void RoboAgent::_mpu9250_callback(const mpu9250::msg::Sensor::SharedPtr IMU)
         this->mag[i] = IMU->mag[i];
     }
 
-    this->pre_deg2d = deg;
-    this->deg = std::atan2(this->mag[0], this->mag[1]) * 180 / pi;
-    this->nowAngle = deg;
+    this->pre_deg2d = this->deg2d;
+    this->deg2d = std::atan2(this->mag[0], this->mag[1]) * 180 / pi;
+    this->nowAngle = this->deg2d;
 }
 
 void RoboAgent::_agent_callback()
