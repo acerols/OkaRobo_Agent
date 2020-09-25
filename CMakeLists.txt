@@ -42,7 +42,7 @@ target_include_directories(robo_agent
 
 install(TARGETS
   robo_agent
-  DESTINATION lib/$(PROJECT_NAME)
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 ament_package()

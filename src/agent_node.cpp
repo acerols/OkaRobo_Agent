@@ -79,12 +79,128 @@ void RoboAgent::_mpu9250_callback(const mpu9250::msg::Sensor::SharedPtr IMU)
 void RoboAgent::_agent_callback()
 {
     auto msg = std::make_shared<agent_msgs::msg::Agent>();
-    msg->velocity = 0;
-    msg->omega = 0;
+
+    velocity = 250;
+    switch(balldirection()){
+        case Front:
+            omega = 0;
+            break;
+        case FrontLeft:
+            omega = -90;
+            break;
+        case Left:
+            omega = -110;
+            break;
+        case RearLeft:
+            omega = 179;
+            break;
+        case Rear:
+            omega = -135;
+            break;
+        case RearRight:
+            omega = 179;
+            break;
+        case Right:
+            omega = 110;
+            break;
+        case FrontRight:
+            omega = 90;
+            break;
+        case None:
+            velocity = 0;
+
+    }
+
+    msg->velocity = velocity;
+    msg->omega = omega;
     msg->nowangle = this->nowAngle;
     msg->targetangle = this->targetAngle;
 
 
+}
+
+RoboAgent::BallDir RoboAgent::balldirection()
+{
+    std::vector<uint16_t> bsc(std::begin(this->bs), std::end(this->bs));
+    std::vector<uint16_t>::iterator min_first = std::min_element(bsc.begin(), bsc.end());   //minimum iterotar of bss
+    auto min_first_index = std::distance(bsc.begin(), min_first);
+
+    if(*min_first < 500){
+        *min_first = 1023;
+        std::vector<uint16_t>::iterator min_sec = std::min_element(bsc.begin(), bsc.end());
+        if(*min_sec < 500){
+            switch(min_first_index){
+                case 0:{
+                    auto min_sec_index = std::distance(bsc.begin(), min_sec);
+                    if(min_sec_index == 1){
+                        return FrontLeft;
+                    }
+                    else if(min_sec_index == 2){
+                        return FrontRight;
+                    }
+                    return Front;
+                }
+                case 1:{
+                    auto min_sec_index = std::distance(bsc.begin(), min_sec);
+                    if(min_sec_index == 0){
+                        return FrontLeft;
+                    }
+                    else if(min_sec_index == 3){
+                        return RearLeft;
+                    }
+                    return Left;
+                }
+                case 2:{
+                    auto min_sec_index = std::distance(bsc.begin(), min_sec);
+                    if(min_sec_index == 0){
+                        return FrontRight;
+                    }
+                    else if(min_sec_index == 3){
+                        return RearRight;
+                    }
+                    return Right;
+                }
+                case 3:{
+                    auto min_sec_index = std::distance(bsc.begin(), min_sec);
+                    if(min_sec_index == 1){
+                        return RearLeft;
+                    }
+                    else if(min_sec_index == 2){
+                        return RearRight;
+                    }
+                    return Rear;
+                }
+            }
+        }
+        else if(*min_first < 900){
+            switch(min_first_index){
+                case 0:
+                    return Front;
+                case 1:
+                    return Left;
+                case 2:
+                    return Right;
+                case 3:
+                    return Rear;
+            }
+        }
+
+    }
+    else if(*min_first < 1000){
+        switch(min_first_index){
+            case 0:
+                return Front;
+            case 1:
+                return Left;
+            case 2:
+                return Right;
+            case 3:
+                return Rear;
+        }
+    }
+    else{
+        return None;
+    }
 }
 
 }

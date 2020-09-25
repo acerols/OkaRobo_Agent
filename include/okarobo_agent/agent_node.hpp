@@ -19,6 +19,21 @@ private:
     void _agent_callback();
     rclcpp::TimerBase::SharedPtr agent_timer_;
 
+
+    enum BallcdDir{
+        Front,
+        FrontLeft,
+        Left,
+        RearLeft,
+        Rear,
+        RearRight,
+        Right,
+        FrontRight,
+        None
+    };
+
+    BallDir balldirection();
+
     float pi;
 
     uint16_t uss[2];
