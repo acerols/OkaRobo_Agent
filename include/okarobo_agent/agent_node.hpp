@@ -20,7 +20,7 @@ private:
     rclcpp::TimerBase::SharedPtr agent_timer_;
 
 
-    enum BallcdDir{
+    enum BallDir{
         Front,
         FrontLeft,
         Left,

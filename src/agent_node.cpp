@@ -80,42 +80,71 @@ void RoboAgent::_agent_callback()
 {
     auto msg = std::make_shared<agent_msgs::msg::Agent>();
 
+    std::string msg_dir;
+
+    RCLCPP_INFO(this->get_logger(), "F %d, L %d, R %d, Re %d", bs[0], bs[1], bs[2], bs[3]);
+
     velocity = 250;
+    BallDir dir = balldirection();
+
     switch(balldirection()){
         case Front:
-            omega = 0;
+            omega = 90;
+            msg_dir = "Front";
             break;
         case FrontLeft:
-            omega = -90;
+            omega = 180;
+            msg_dir = "FrontLeft";
             break;
         case Left:
-            omega = -110;
+            omega = 200;
+            msg_dir = "Left";
             break;
         case RearLeft:
-            omega = 179;
+            omega = 270;
+            msg_dir = "RearLeft";
             break;
-        case Rear:
-            omega = -135;
+        case Rear:{
+            if(uss[0] < uss[1]){
+                omega = 270 - 45;
+            }
+            else{
+                omega = 270 + 45;
+            }
+            msg_dir = "Rear";
             break;
+        }
         case RearRight:
-            omega = 179;
+            omega = 270;
+            msg_dir = "RearRight";
             break;
         case Right:
-            omega = 110;
+            omega = 340;
+            msg_dir = "Right";
             break;
         case FrontRight:
-            omega = 90;
+            omega = 0;
+            msg_dir = "FrontRight";
             break;
-        case None:
+        default:
+            msg_dir = "None";
             velocity = 0;
+            break;
 
     }
 
+    if(dir == None){
+        this->targetAngle = 0; 
+    }
+    
     msg->velocity = velocity;
-    msg->omega = omega;
+    msg->omega = this->omega;
     msg->nowangle = this->nowAngle;
     msg->targetangle = this->targetAngle;
 
+    RCLCPP_INFO(this->get_logger(), "velocity %d, omega %d, dir %s", velocity, omega, msg_dir.c_str());
+
+    agent_pub_->publish(*msg);
 
 }
 
@@ -125,9 +154,12 @@ RoboAgent::BallDir RoboAgent::balldirection()
     std::vector<uint16_t>::iterator min_first = std::min_element(bsc.begin(), bsc.end());   //minimum iterotar of bss
     auto min_first_index = std::distance(bsc.begin(), min_first);
 
+    auto min_first_value = *min_first;
+
     if(*min_first < 500){
         *min_first = 1023;
         std::vector<uint16_t>::iterator min_sec = std::min_element(bsc.begin(), bsc.end());
+        RCLCPP_INFO(this->get_logger(), "min index %d, min val %d", min_first_index, *min_first);
         if(*min_sec < 500){
             switch(min_first_index){
                 case 0:{
@@ -172,7 +204,7 @@ RoboAgent::BallDir RoboAgent::balldirection()
                 }
             }
         }
-        else if(*min_first < 900){
+        else if(min_first_value < 900){
             switch(min_first_index){
                 case 0:
                     return Front;
